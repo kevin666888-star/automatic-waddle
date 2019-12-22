@@ -1,0 +1,143 @@
+//驱动arduino的代码
+
+#include "HX711.h"					//调用24bitAD HX711库
+
+HX711 HX711_CH0(2, 3, 1620); //SCK,DT,GapValue
+//SCK引脚用于arduino和HX711模块通讯的时序提供
+//DT引脚用于从HX711读取AD的数据
+//GapValue用于校准输出的重量值，如果数值偏大就加大该值，如果数据偏小就减小该值
+int LED = 13;
+int a =175;
+#include "U8glib.h"
+
+U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE|U8G_I2C_OPT_DEV_0);
+long Weight = 0;		//定义一个变量用于存放承重的重量，单位为g
+int alarmWeight=800;
+
+
+
+void draw(void) {
+
+  // graphic commands to redraw the complete screen should be placed here  
+
+  u8g.setFont(u8g_font_unifont);
+
+  //u8g.setFont(u8g_font_osb21);
+
+  u8g.drawStr( 0, 22, "I am your friend");
+
+  u8g.drawStr(0,56,"Please");
+
+  u8g.drawStr(50,56,"be fit");
+
+}
+
+
+
+void draw2(void) {
+
+  // graphic commands to redraw the complete screen should be placed here  
+
+  u8g.setFont(u8g_font_unifont);
+
+  //u8g.setFont(u8g_font_osb21);
+
+  u8g.drawStr( 0, 22, "I am happy");
+
+  u8g.drawStr(0,56,"Please");
+
+  u8g.drawStr(50,56,"put here");
+
+}
+
+
+void setup()
+{
+  
+   
+   
+   
+   
+   
+   if ( u8g.getMode() == U8G_MODE_R3G3B2 ) {
+
+    u8g.setColorIndex(255);     // white
+
+  }
+
+  else if ( u8g.getMode() == U8G_MODE_GRAY2BIT ) {
+
+    u8g.setColorIndex(3);         // max intensity
+
+  }
+
+  else if ( u8g.getMode() == U8G_MODE_BW ) {
+
+    u8g.setColorIndex(1);         // pixel on
+
+  }
+
+  else if ( u8g.getMode() == U8G_MODE_HICOLOR ) {
+
+    u8g.setHiColorByRGB(255,255,255);
+
+  }
+
+  pinMode(LED, OUTPUT);				//设定LED是输出引脚
+  digitalWrite(LED, LOW);			//LED熄灭
+
+  Serial.begin(9600);						//设定串口输出波特率
+  Serial.print("Welcome to use!\n");
+
+  HX711_CH0.begin();					//读取传感器支架毛重
+  delay(3000);								//延时3s用于传感器稳定
+  HX711_CH0.begin();					//重新读取传感器支架毛重用于后续计算
+
+ 		//板载LED点亮，说明可以承重
+}
+
+void loop()
+{ 
+  
+ 
+  int n = analogRead(A3);   //读取模拟口A3，获取光强
+                // 用于IDE串口观察窗
+   if(n>=a)
+       { u8g.firstPage();  
+
+  do {
+
+    draw2();
+
+  } while( u8g.nextPage() );}
+  else  { u8g.firstPage();  
+
+  do {
+
+    draw();
+
+  } while( u8g.nextPage() );}
+  
+
+  
+
+  // rebuild the picture after some delay
+
+  //delay(50);
+
+    Weight = HX711_CH0.Get_Weight();		//采样当前传感器重量，该重量已经自动去皮，去皮值根据初始化程序中采样的值计算。
+    Serial.print(Weight);			//串口输出当前重量
+    Serial.println(" g");			//单位为g
+    delay(1000);  
+if(Weight>alarmWeight){ digitalWrite(LED, HIGH);}//如果超重，特定端口打开
+if(Weight<alarmWeight){digitalWrite(LED, LOW); }
+
+
+}
+
+
+
+
+
+
+
