@@ -1,0 +1,6 @@
+<!--start.wxml-->
+<view class="intro">
+  目的: 查看垃圾桶附近的温湿度
+</view>
+
+<button class="btn1" bindtap="navigate" type="primary">数据</button>

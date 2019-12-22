@@ -1,0 +1,13 @@
+/* start.wxss */
+
+.intro {
+  padding: 24px 10%;
+  color: #424242;
+  line-height: 1.5;
+  font-size: 30px;
+  margin-bottom: 80px;
+}
+
+.btn1{
+  width: 60%;
+}
